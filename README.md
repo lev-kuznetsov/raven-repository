@@ -13,8 +13,8 @@ via this repository. The snapshot contains enough information to retrieve the
 package version source.
 
 To register a package with the repository the source needs to be hosted on
-github, go to the repository page then choose ```Settings > Webhooks & Services
- > Add Webhook```, put ```http://raven-repository.appspot.com/registry/github```
+github, go to the repository page then choose ```Settings > Webhooks &
+Services > Add Webhook```, put ```http://raven-repository.appspot.com/registry/github```
 for the payload URL and ```application/json``` for content type, leave the secret
 field blank. Your package will be registered with the repository the next time
 you make a commit. Once a snapshot is taken it is immutable, no updates are
