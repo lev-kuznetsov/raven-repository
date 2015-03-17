@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries>
+  <cron>
+    <url>/services/registry/cran</url>
+    <description>update cran</description>
+    <schedule>every day 6:00</schedule>
+  </cron>
+  <cron>
+    <url>/services/registry/bioc-release</url>
+    <description>update bioc-release</description>
+    <schedule>every day 6:10</schedule>
+  </cron>
+  <cron>
+    <url>/services/registry/bioc-devel</url>
+    <description>update bioc-devel</description>
+    <schedule>every day 6:20</schedule>
+  </cron>
+</cronentries>
