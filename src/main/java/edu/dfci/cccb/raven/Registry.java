@@ -21,6 +21,9 @@ import static java.util.Arrays.asList;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
 import static javax.ws.rs.core.Response.noContent;
+import static javax.ws.rs.core.Response.status;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.OK;
 import static org.jsoup.Jsoup.parse;
 
 import java.io.ByteArrayInputStream;
@@ -77,6 +80,7 @@ public class Registry {
 
   @JsonIgnoreProperties (ignoreUnknown = true)
   private static class GithubPushEvent {
+    private @Getter @JsonProperty ("ref") String ref;
     private @Getter @JsonProperty ("after") String sha;
     private @JsonProperty GithubRepository repository;
 
@@ -92,16 +96,29 @@ public class Registry {
 
   @Path ("/github")
   @POST
-  public void github (GithubPushEvent push) throws IOException, InterruptedException {
-    String sha = push.getSha ();
-    String repo = push.getRepo ();
-    HTTPRequest request = new HTTPRequest (new URL ("https://raw.githubusercontent.com/"
-                                                    + repo + "/" + sha + "/DESCRIPTION"));
-    request.setHeader (new HTTPHeader ("User-Agent", "dfci-cccb"));
-    Description description = new Description (new String (url.fetch (request).getContent ()));
-    Snapshot snapshot = new Github ().setRepo (repo).setSha (sha);
+  public Response github (GithubPushEvent push) throws IOException, InterruptedException {
+    if ("refs/heads/master".equals (push.getRef ())) {
+      String target = "https://raw.githubusercontent.com/" + push.getRepo () + "/" + push.getSha () + "/DESCRIPTION";
+      HTTPRequest request = new HTTPRequest (new URL (target));
+      request.setHeader (new HTTPHeader ("User-Agent", "dfci-cccb"));
+      HTTPResponse response = url.fetch (request);
+      if (response.getResponseCode () == OK.getStatusCode ()) {
+        String content = new String (response.getContent ());
+        log.info ("Trying to parse DESCRIPTION from " + target + ":\n" + content);
+        Description description = new Description (content);
+        Snapshot snapshot = new Github ().setRepo (push.getRepo ()).setSha (push.getSha ());
 
-    resolve (description, snapshot, new HashMap<String, Pair<Description, Snapshot>> (), new HashMap<String, String> ());
+        resolve (description,
+                 snapshot,
+                 new HashMap<String, Pair<Description, Snapshot>> (),
+                 new HashMap<String, String> ());
+        return noContent ().build ();
+      } else {
+        log.warning ("Could not find DESCRIPTION for " + push.getRepo ());
+        return status (BAD_REQUEST).entity ("No DESCRIPTION file in ref/heads/master").build ();
+      }
+    } else
+      return noContent ().build ();
   }
 
   @Path ("/cran")
@@ -284,8 +301,6 @@ public class Registry {
                            Snapshot snapshot,
                            Map<String, Pair<Description, Snapshot>> context,
                            Map<String, String> resolved) throws InterruptedException {
-    if (description.getName ().equals ("NMF"))
-      System.out.println ("yelp");
     if (resolved.containsKey (description.getName ()))
       return true;
     else {
