@@ -21,23 +21,47 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+/**
+ * Thrown when a non existing version of a package is requested
+ * 
+ * @author levk
+ *
+ */
 public class VersionNotFoundException extends RavenException {
   private static final long serialVersionUID = 1L;
 
+  /**
+   */
   public VersionNotFoundException () {}
 
+  /**
+   * @param message
+   */
   public VersionNotFoundException (String message) {
     super (message);
   }
 
+  /**
+   * @param cause
+   */
   public VersionNotFoundException (Throwable cause) {
     super (cause);
   }
 
+  /**
+   * @param message
+   * @param cause
+   */
   public VersionNotFoundException (String message, Throwable cause) {
     super (message, cause);
   }
 
+  /**
+   * @param message
+   * @param cause
+   * @param enableSuppression
+   * @param writableStackTrace
+   */
   public VersionNotFoundException (String message,
                                    Throwable cause,
                                    boolean enableSuppression,
@@ -45,6 +69,8 @@ public class VersionNotFoundException extends RavenException {
     super (message, cause, enableSuppression, writableStackTrace);
   }
 
+  /* (non-Javadoc)
+   * @see edu.dfci.cccb.raven2.RavenException#response() */
   @Override
   public ResponseBuilder response () {
     return status (NOT_FOUND);

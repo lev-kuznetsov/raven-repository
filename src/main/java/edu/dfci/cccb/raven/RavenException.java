@@ -28,39 +28,71 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Common superclass for failures
+ * 
+ * @author levk
+ *
+ */
 @JsonInclude (NON_EMPTY)
-public class RavenException extends Exception {
+public class RavenException extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
+  /**
+   */
   public RavenException () {}
 
+  /**
+   * @param message
+   */
   public RavenException (String message) {
     super (message);
   }
 
+  /**
+   * @param cause
+   */
   public RavenException (Throwable cause) {
     super (cause);
   }
 
+  /**
+   * @param message
+   * @param cause
+   */
   public RavenException (String message, Throwable cause) {
     super (message, cause);
   }
 
+  /**
+   * @param message
+   * @param cause
+   * @param enableSuppression
+   * @param writableStackTrace
+   */
   public RavenException (String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
     super (message, cause, enableSuppression, writableStackTrace);
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Throwable#getMessage() */
   @JsonProperty ("message")
   @Override
   public String getMessage () {
     return super.getMessage ();
   }
 
+  /**
+   * @return type
+   */
   @JsonProperty
   public String getType () {
     return getClass ().getSimpleName ();
   }
 
+  /**
+   * @return cause
+   */
   @JsonProperty ("cause")
   private Map<String, ?> cause () {
     Throwable cause = getCause ();
@@ -79,28 +111,40 @@ public class RavenException extends Exception {
     }
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Throwable#getCause() */
   @Override
   @JsonIgnore
   public synchronized Throwable getCause () {
     return super.getCause ();
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Throwable#getLocalizedMessage() */
   @Override
   @JsonIgnore
   public String getLocalizedMessage () {
     return super.getLocalizedMessage ();
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Throwable#getStackTrace() */
   @Override
   @JsonIgnore
   public StackTraceElement[] getStackTrace () {
     return super.getStackTrace ();
   }
 
+  /**
+   * @return response builder
+   */
   public ResponseBuilder response () {
     return serverError ();
   }
 
+  /**
+   * @return entity
+   */
   public Object asEntity () {
     return this;
   }

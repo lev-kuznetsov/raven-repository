@@ -1,7 +1,7 @@
 /*
- * This program is free software; you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -10,54 +10,62 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package edu.dfci.cccb.raven;
 
-import static com.google.appengine.api.datastore.KeyFactory.createKey;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 
-import java.io.IOException;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.concurrent.ExecutionException;
+import java.util.Collection;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
+import javax.inject.Provider;
+import javax.persistence.EntityManager;
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
-import lombok.SneakyThrows;
+import com.google.inject.persist.Transactional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.appengine.api.datastore.AsyncDatastoreService;
-import com.google.appengine.api.datastore.EntityNotFoundException;
-import com.google.appengine.api.datastore.Text;
-
+/**
+ * Repository
+ *
+ * @author levk
+ *
+ */
 @Path ("/repository")
-@Singleton
 public class Repository {
 
-  private @Inject AsyncDatastoreService data;
+  /**
+   * JPA DA
+   */
+  private @Inject Provider<EntityManager> manager;
 
-  private @Inject ObjectMapper mapper;
-
+  /**
+   * @param name
+   * @return package
+   * @throws PackageNotFoundException
+   */
   @Path ("/{package}")
-  @SneakyThrows (IOException.class)
-  public Package get (final @PathParam ("package") String name) throws PackageNotFoundException,
-                                                               InterruptedException {
+  @Transactional
+  public Package get (@PathParam ("package") String name) throws PackageNotFoundException {
     try {
-      return mapper.readValue (((Text) data.get (createKey ("package", name)).get ().getProperty ("payload")).getValue (),
-                               Package.class);
-    } catch (ExecutionException e) {
-      if (e.getCause () instanceof EntityNotFoundException)
-        throw new PackageNotFoundException ("Could not find package " + name);
-      else if (e.getCause () instanceof RuntimeException)
-        throw (RuntimeException) e.getCause ();
-      else if (e.getCause () instanceof Error)
-        throw (Error) e.getCause ();
-      else
-        throw new UndeclaredThrowableException (e.getCause ());
+      return ofNullable (manager.get ().find (Package.class, name)).orElseThrow ( () -> new PackageNotFoundException ("No package named "
+                                                                                                                      + name
+                                                                                                                      + " found"));
+    } catch (IllegalArgumentException e) {
+      throw new PackageNotFoundException ("No package named " + name + " found");
     }
+  }
+
+  /**
+   * @return package names
+   */
+  @GET
+  @Transactional
+  public Collection<String> available () {
+    return manager.get ().createQuery ("SELECT o FROM Package o", Package.class)
+                  .getResultList ().stream ().map (p -> p.name ()).collect (toList ());
   }
 }

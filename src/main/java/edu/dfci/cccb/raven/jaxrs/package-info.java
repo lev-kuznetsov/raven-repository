@@ -14,7 +14,9 @@
  */
 
 /**
+ * JAX-RS
+ * 
  * @author levk
  *
  */
-package edu.dfci.cccb.raven;
+package edu.dfci.cccb.raven.jaxrs;

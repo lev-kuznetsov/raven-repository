@@ -10,33 +10,70 @@
   <artifactId>raven-repository</artifactId>
 
   <properties>
-    <appengine.app.version>1</appengine.app.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <guice.version>4.0-beta5</guice.version>
-    <appengine.api.version>1.9.18</appengine.api.version>
-    <jersey.version>1.19</jersey.version>
-  </properties>
 
-  <prerequisites>
-    <maven>3.1.0</maven>
-  </prerequisites>
+    <java.source.version>1.8</java.source.version>
+    <java.target.version>1.8</java.target.version>
+
+    <org.slf4j.version>1.7.2</org.slf4j.version>
+    <log4j.version>1.2.17</log4j.version>
+    <junit.version>4.12</junit.version>
+    <guice.version>4.0-beta5</guice.version>
+    <jersey.version>1.19</jersey.version>
+    <jackson.version>2.5.2</jackson.version>
+    <h2.version>1.4.187</h2.version>
+    <hibernate.version>4.3.9.Final</hibernate.version>
+    <onami-scheduler.version>1.4.0</onami-scheduler.version>
+    <commons-io.version>2.4</commons-io.version>
+    <org.slf4j.version>1.7.12</org.slf4j.version>
+    <log4j.version>1.2.17</log4j.version>
+    <postgresql.version>9.1-901-1.jdbc4</postgresql.version>
+    <reflections.version>0.9.9</reflections.version>
+
+    <maven-compiler-plugin.version>3.0</maven-compiler-plugin.version>
+    <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
+    <properties-maven-plugin.version>1.0-alpha-2</properties-maven-plugin.version>
+    <jetty-maven-plugin>9.3.0.M2</jetty-maven-plugin>
+    <maven-war-plugin>2.4</maven-war-plugin>
+  </properties>
 
   <dependencies>
     <!-- Compile/runtime dependencies -->
     <dependency>
-      <groupId>org.javatuples</groupId>
-      <artifactId>javatuples</artifactId>
-      <version>1.2</version>
-    </dependency>
-    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>2.4</version>
+      <version>${commons-io.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.onami</groupId>
+      <artifactId>org.apache.onami.scheduler</artifactId>
+      <version>${onami-scheduler.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
+      <version>${hibernate.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-c3p0</artifactId>
+      <version>${hibernate.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate.javax.persistence</groupId>
+      <artifactId>hibernate-jpa-2.0-api</artifactId>
+      <version>1.0.1.Final</version>
     </dependency>
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
       <version>1.8.1</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>3.0.1</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.sun.jersey</groupId>
@@ -49,11 +86,6 @@
       <version>${jersey.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <version>1.16.2</version>
-    </dependency>
-    <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
       <version>2.5.1</version>
@@ -62,6 +94,11 @@
       <groupId>com.fasterxml.jackson.module</groupId>
       <artifactId>jackson-module-guice</artifactId>
       <version>2.5.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.inject.extensions</groupId>
+      <artifactId>guice-persist</artifactId>
+      <version>${guice.version}</version>
     </dependency>
     <dependency>
       <groupId>com.google.inject.extensions</groupId>
@@ -79,20 +116,29 @@
       <version>${guice.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.google.appengine</groupId>
-      <artifactId>appengine-api-1.0-sdk</artifactId>
-      <version>${appengine.api.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.5</version>
-      <scope>provided</scope>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jul-to-slf4j</artifactId>
+      <version>${org.slf4j.version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-jdk14</artifactId>
-      <version>1.7.10</version>
+      <artifactId>slf4j-api</artifactId>
+      <version>${org.slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+      <version>${org.slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>${org.slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>${log4j.version}</version>
     </dependency>
     <!-- Test Dependencies -->
     <dependency>
@@ -104,28 +150,54 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.12-beta-1</version>
+      <version>4.12</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>1.9.5</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.appengine</groupId>
-      <artifactId>appengine-testing</artifactId>
-      <version>${appengine.api.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.appengine</groupId>
-      <artifactId>appengine-api-stubs</artifactId>
-      <version>${appengine.api.version}</version>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>${h2.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>local</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <persistence.unit.name>local</persistence.unit.name>
+        <database.driver.class>org.h2.Driver</database.driver.class>
+        <database.hibernate.dialect>org.hibernate.dialect.H2Dialect</database.hibernate.dialect>
+        <database.connection.url>jdbc:h2:file:./target/db</database.connection.url>
+        <database.connection.username>sa</database.connection.username>
+        <database.connection.password></database.connection.password>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>com.h2database</groupId>
+          <artifactId>h2</artifactId>
+          <version>${h2.version}</version>
+        </dependency>
+      </dependencies>
+    </profile>
+
+    <profile>
+      <id>openshift</id>
+      <properties>
+        <persistence.unit.name>openshift</persistence.unit.name>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>postgresql</groupId>
+          <artifactId>postgresql</artifactId>
+          <version>${postgresql.version}</version>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 
   <build>
     <!-- for hot reload of the web application -->
@@ -133,32 +205,40 @@
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
-        <artifactId>versions-maven-plugin</artifactId>
-        <version>2.1</version>
+        <artifactId>properties-maven-plugin</artifactId>
+        <version>${properties-maven-plugin.version}</version>
         <executions>
           <execution>
-            <phase>compile</phase>
+            <phase>generate-resources</phase>
             <goals>
-              <goal>display-dependency-updates</goal>
-              <goal>display-plugin-updates</goal>
+              <goal>write-active-profile-properties</goal>
             </goals>
+            <configuration>
+              <outputFile>
+                ${project.build.outputDirectory}/profile.properties
+              </outputFile>
+            </configuration>
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <version>3.1</version>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version}</version>
         <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
+          <source>${java.source.version}</source>
+          <target>${java.target.version}</target>
+          <showDeprecation>true</showDeprecation>
+          <showWarnings>true</showWarnings>
+          <fork>true</fork>
         </configuration>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
-        <version>2.4</version>
+        <version>${maven-war-plugin}</version>
         <configuration>
           <archiveClasses>true</archiveClasses>
           <webResources>
@@ -173,21 +253,42 @@
       </plugin>
 
       <plugin>
-        <groupId>com.google.appengine</groupId>
-        <artifactId>appengine-maven-plugin</artifactId>
-        <version>1.9.18</version>
-        <configuration>
-          <enableJarClasses>false</enableJarClasses>
-          <!-- Comment in the below snippet to bind to all IPs instead of 
-            just localhost -->
-          <!-- address>0.0.0.0</address> <port>8080</port -->
-          <!-- Comment in the below snippet to enable local debugging with 
-            a remove debugger like those included with Eclipse or IntelliJ -->
-          <!-- jvmFlags> <jvmFlag>-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n</jvmFlag> 
-            </jvmFlags -->
-        </configuration>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-maven-plugin</artifactId>
+        <version>${jetty-maven-plugin}</version>
       </plugin>
     </plugins>
+
+    <pluginManagement>
+      <plugins>
+        <!--This plugin's configuration is used to store Eclipse m2e settings 
+          only. It has no influence on the Maven build itself. -->
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>properties-maven-plugin</artifactId>
+                    <versionRange>[${properties-maven-plugin.version},)</versionRange>
+                    <goals>
+                      <goal>write-active-profile-properties</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 
 </project>

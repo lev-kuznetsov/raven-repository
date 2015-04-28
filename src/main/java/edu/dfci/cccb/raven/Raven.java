@@ -1,7 +1,7 @@
 /*
- * This program is free software; you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -10,52 +10,99 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package edu.dfci.cccb.raven;
 
-import static com.google.appengine.api.datastore.DatastoreServiceFactory.getAsyncDatastoreService;
-import static com.google.appengine.api.urlfetch.URLFetchServiceFactory.getURLFetchService;
 import static com.google.common.collect.ImmutableMap.of;
+import static com.google.inject.Guice.createInjector;
+import static java.lang.System.getProperties;
+import static java.lang.System.getProperty;
+import static java.lang.System.getenv;
+import static java.util.logging.Level.FINEST;
+import static java.util.logging.LogManager.getLogManager;
+import static java.util.logging.Logger.getLogger;
 
-import javax.inject.Singleton;
+import java.io.IOException;
+
+import org.apache.onami.scheduler.QuartzModule;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.fasterxml.jackson.module.guice.ObjectMapperModule;
-import com.google.appengine.api.datastore.AsyncDatastoreService;
-import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.inject.Binder;
+import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.google.inject.Provides;
+import com.google.inject.persist.PersistFilter;
+import com.google.inject.persist.jpa.JpaPersistModule;
+import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
-public class Raven implements Module {
+import edu.dfci.cccb.raven.Cran.CranResolver;
+import edu.dfci.cccb.raven.Svn.BiocDevelResolver;
+import edu.dfci.cccb.raven.Svn.BiocReleaseResolver;
 
-  @Provides
-  @Singleton
-  public AsyncDatastoreService data () {
-    return getAsyncDatastoreService ();
-  }
+/**
+ * Configures the application server
+ *
+ * @author levk
+ *
+ */
+public class Raven extends GuiceServletContextListener implements Module {
 
-  @Provides
-  @Singleton
-  public URLFetchService url () {
-    return getURLFetchService ();
-  }
+  /**
+   * Application package for component scans
+   */
+  private static final String APPLICATION_PACKAGE = Raven.class.getPackage ().getName ();
 
+  /* (non-Javadoc)
+   * @see com.google.inject.Module#configure(com.google.inject.Binder) */
   @Override
   public void configure (Binder binder) {
+    // Import configuration as system properties
+    getProperties ().putAll (getenv ());
+    try {
+      getProperties ().load (getClass ().getResourceAsStream ("/profile.properties"));
+    } catch (IOException e) {}
+
+    // Configures deps using java.util.logging to log out to slf4j
+    getLogManager ().reset ();
+    SLF4JBridgeHandler.install ();
+    getLogger ("global").setLevel (FINEST);
+
+    // JSON
     binder.install (new ObjectMapperModule ());
 
+    // JPA
+    binder.install (new JpaPersistModule (getProperty ("persistence.unit.name")));
+
+    // Quartz
+    binder.install (new QuartzModule () {
+
+      @Override
+      protected void schedule () {
+        scheduleJob (CranResolver.class).withCronExpression ("0 20 17 * * ?");
+        scheduleJob (BiocDevelResolver.class).withCronExpression ("0 21 17 * * ?");
+        scheduleJob (BiocReleaseResolver.class).withCronExpression ("0 22 17 * * ?");
+      }
+    });
+
+    // REST
     binder.install (new ServletModule () {
 
       @Override
       protected void configureServlets () {
         serve ("/*").with (GuiceContainer.class, of ("com.sun.jersey.config.property.packages",
-                                                     "edu.dfci.cccb.raven"));
+                                                     APPLICATION_PACKAGE));
+        filter ("/*").through (PersistFilter.class);
       }
     });
+  }
+
+  /* (non-Javadoc)
+   * @see com.google.inject.servlet.GuiceServletContextListener#getInjector() */
+  @Override
+  protected Injector getInjector () {
+    return createInjector (this);
   }
 }
