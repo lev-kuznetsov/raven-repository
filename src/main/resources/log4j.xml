@@ -28,6 +28,9 @@
   <logger name="org.jboss">
     <level value="info" />
   </logger>
+  <logger name="com.mchange">
+    <level value="info"></level>
+  </logger>
   <root>
     <priority value="debug"></priority>
     <appender-ref ref="stderr" />
