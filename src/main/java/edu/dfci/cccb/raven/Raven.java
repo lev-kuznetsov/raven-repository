@@ -81,9 +81,9 @@ public class Raven extends GuiceServletContextListener implements Module {
 
       @Override
       protected void schedule () {
-        scheduleJob (CranResolver.class).withCronExpression ("0 20 17 * * ?");
-        scheduleJob (BiocDevelResolver.class).withCronExpression ("0 21 17 * * ?");
-        scheduleJob (BiocReleaseResolver.class).withCronExpression ("0 22 17 * * ?");
+        scheduleJob (CranResolver.class);
+        scheduleJob (BiocDevelResolver.class);
+        scheduleJob (BiocReleaseResolver.class);
       }
     });
 
