@@ -50,7 +50,7 @@
       <property name="hibernate.connection.charSet" value="UTF-8" />
       <property name="hibernate.connection.driver_class" value="org.postgresql.Driver" />
       <property name="hibernate.connection.url"
-        value="jdbc:postgresql://${env.OPENSHIFT_POSTGRESQL_DB_HOST}:${env.OPENSHIFT_POSTGRESQL_DB_PORT}/${env.OPENSHIFT_APP_NAME}" />
+        value="jdbc:postgresql://${OPENSHIFT_POSTGRESQL_DB_HOST}:${OPENSHIFT_POSTGRESQL_DB_PORT}/${OPENSHIFT_APP_NAME}" />
       <property name="hibernate.connection.username" value="${OPENSHIFT_POSTGRESQL_DB_USERNAME}" />
       <property name="hibernate.connection.password" value="${OPENSHIFT_POSTGRESQL_DB_PASSWORD}" />
       <property name="connection.provider_class"
