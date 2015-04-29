@@ -257,6 +257,10 @@
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-maven-plugin</artifactId>
         <version>${jetty-maven-plugin}</version>
+        <configuration>
+          <stopPort>58888</stopPort>
+          <stopKey>stop</stopKey>
+        </configuration>
       </plugin>
     </plugins>
 
