@@ -41,12 +41,16 @@ then
   wget http://apache.spinellicreations.com/tomcat/tomcat-8/v8.0.21/bin/apache-tomcat-8.0.21.tar.gz
   tar xf *.tar.gz
   mv apache-tomcat-8.0.21 tomcat
-  cp $OPENSHIFT_REPO_DIR/.openshift/tomcat/server.xml $OPENSHIFT_DATA_DIR/tomcat/conf
   rm -f *.tar.gz
+  cd $OPENSHIFT_DATA_DIR/tomcat
+  rm -rf logs
+  ln -s $OPENSHIFT_LOG_DIR logs
 fi
+cp $OPENSHIFT_REPO_DIR/.openshift/tomcat/server.xml $OPENSHIFT_DATA_DIR/tomcat/conf
 export PATH=$OPENSHIFT_DATA_DIR/tomcat/bin:$PATH
 
 cd $OPENSHIFT_REPO_DIR
 
 mvn -Dmaven.repo.local=$MAVEN_REPO -Popenshift -DskipTests clean package
+rm -rf $OPENSHIFT_DATA_DIR/tomcat/webapps/*
 cp target/*.war $OPENSHIFT_DATA_DIR/tomcat/webapps
