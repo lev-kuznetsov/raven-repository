@@ -14,7 +14,7 @@ rhc app stop -a raven                           # Stop it
 cd raven
 git rm -r .openshift README.md diy misc         # Remove templates
 git commit -am "removed templates"
-git remote add upstream https://github.com/dfci-cccb.raven-repository
+git remote add upstream https://github.com/dfci-cccb/raven-repository
 git pull -s recursive -X theirs upstream master # Clone this repo
 git push                                        # Deploy
 ```
