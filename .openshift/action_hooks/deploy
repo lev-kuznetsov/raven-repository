@@ -7,6 +7,7 @@ then
   mkdir $OPENSHIFT_DATA_DIR/logs
 fi
 
+export JAVA_HOME=$OPENSHIFT_DATA_DIR/jdk
 if [ ! -d $JAVA_HOME ]
 then
   cd $OPENSHIFT_DATA_DIR
@@ -15,7 +16,6 @@ then
   mv jdk1.8.0_20 jdk
   rm -f *.tar.gz
 fi
-export JAVA_HOME=$OPENSHIFT_DATA_DIR/jdk
 export PATH=$JAVA_HOME/bin:$PATH
 
 if [ ! -d $OPENSHIFT_DATA_DIR/maven ]
@@ -29,11 +29,11 @@ fi
 export PATH=$OPENSHIFT_DATA_DIR/maven/bin:$PATH
 export MAVEN_OPTS="-Xms384m -Xmx412m"
 
+export MAVEN_REPO=$OPENSHIFT_DATA_DIR/.m2
 if [ ! -d $MAVEN_REPO ]
 then
   mkdir -p $MAVEN_REPO                
 fi
-export MAVEN_REPO=$OPENSHIFT_DATA_DIR/.m2
 
 if [ ! -d $OPENSHIFT_DATA_DIR/tomcat ]
 then
