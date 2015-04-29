@@ -6,6 +6,7 @@ set -x
 
 export JAVA_HOME=$OPENSHIFT_DATA_DIR/jdk1.8.0_20
 export PATH=$JAVA_HOME/bin:$PATH
+export MAVEN_OPTS="-Xms384m -Xmx412m"
 
 cd $OPENSHIFT_REPO_DIR
-nohup java -Xms384m -Xmx412m mvn -Dmaven.repo.local=$OPENSHIFT_DATA_DIR/.m2 -Popenshift jetty:start -Djetty.port=${OPENSHIFT_DIY_PORT} -Djetty.ip=${OPENSHIFT_DIY_IP}
+nohup mvn -Dmaven.repo.local=$OPENSHIFT_DATA_DIR/.m2 -Popenshift jetty:start -Djetty.port=${OPENSHIFT_DIY_PORT} -Djetty.ip=${OPENSHIFT_DIY_IP}
