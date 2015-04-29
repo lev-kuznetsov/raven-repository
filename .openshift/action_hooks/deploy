@@ -54,4 +54,4 @@ cd $OPENSHIFT_REPO_DIR
 
 mvn -Dmaven.repo.local=$MAVEN_REPO -Popenshift -DskipTests clean package
 rm -rf $OPENSHIFT_DATA_DIR/tomcat/webapps/*
-cp target/*.war $OPENSHIFT_DATA_DIR/tomcat/webapps
+cp target/raven-repository.war $OPENSHIFT_DATA_DIR/tomcat/webapps/ROOT.war

@@ -201,7 +201,7 @@
   </profiles>
 
   <build>
-    <finalName>snapshots</finalName>
+    <finalName>${project.artifactId}</finalName>
     <!-- for hot reload of the web application -->
     <outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF/classes</outputDirectory>
     <plugins>
