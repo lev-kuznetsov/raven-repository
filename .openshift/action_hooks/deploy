@@ -2,37 +2,51 @@
 
 set -x
 
-if [ ! -d $OPENSHIFT_DATA_DIR/.m2/repository ]
-then
-  mkdir -p $OPENSHIFT_DATA_DIR/.m2/repository                
-fi
-
 if [ ! -d $OPENSHIFT_DATA_DIR/logs ]
 then
   mkdir $OPENSHIFT_DATA_DIR/logs
 fi
 
-if [ ! -d $OPENSHIFT_DATA_DIR/jdk1.8.0_20 ]
+if [ ! -d $JAVA_HOME ]
 then
   cd $OPENSHIFT_DATA_DIR
   wget http://www.java.net/download/jdk8u20/archive/b17/binaries/jdk-8u20-ea-bin-b17-linux-x64-04_jun_2014.tar.gz
   tar xf *.tar.gz
+  mv jdk1.8.0_20 jdk
   rm -f *.tar.gz
 fi
+export JAVA_HOME=$OPENSHIFT_DATA_DIR/jdk
+export PATH=$JAVA_HOME/bin:$PATH
 
-if [ ! -d $OPENSHIFT_DATA_DIR/apache-maven-3.3.3 ]
+if [ ! -d $OPENSHIFT_DATA_DIR/maven ]
 then
   cd $OPENSHIFT_DATA_DIR
   wget http://apache.mirrors.hoobly.com/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.tar.gz
   tar xf *.tar.gz
+  mv apache-maven-3.3.3 maven
   rm -f *.tar.gz
 fi
+export PATH=$OPENSHIFT_DATA_DIR/maven/bin:$PATH
+export MAVEN_OPTS="-Xms384m -Xmx412m"
+
+if [ ! -d $MAVEN_REPO ]
+then
+  mkdir -p $MAVEN_REPO                
+fi
+export MAVEN_REPO=$OPENSHIFT_DATA_DIR/.m2
+
+if [ ! -d $OPENSHIFT_DATA_DIR/tomcat ]
+then
+  cd $OPENSHIFT_DATA_DIR
+  wget http://apache.spinellicreations.com/tomcat/tomcat-8/v8.0.21/bin/apache-tomcat-8.0.21.tar.gz
+  tar xf *.tar.gz
+  mv apache-tomcat-8.0.21 tomcat
+  cp $OPENSHIFT_REPO/.openshift/tomcat/server.xml $OPENSHIFT_DATA_DIR/tomcat/conf
+  rm -f *.tar.gz
+fi
+export PATH=$OPENSHIFT_DATA_DIR/tomcat/bin:$PATH
 
 cd $OPENSHIFT_REPO_DIR
-export MAVEN_OPTS="-Xms384m -Xmx412m"
-export M2_REPO=$OPENSHIFT_DATA_DIR/.m2
-export JAVA_HOME=$OPENSHIFT_DATA_DIR/jdk1.8.0_20
-export MVN=$OPENSHIFT_DATA_DIR/apache-maven-3.3.3/bin/mvn
-export PATH=$JAVA_HOME/bin:$PATH
 
-$MVN -Dmaven.repo.local=$OPENSHIFT_DATA_DIR/.m2 -Popenshift -DskipTests clean install
+mvn -Dmaven.repo.local=$MAVEN_REPO -Popenshift -DskipTests clean package
+cp target/*.war $OPENSHIFT_DATA_DIR/tomcat/webapps
