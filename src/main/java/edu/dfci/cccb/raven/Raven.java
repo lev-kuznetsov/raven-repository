@@ -128,9 +128,9 @@ public class Raven extends GuiceServletContextListener implements Module {
   @Override
   public void contextDestroyed (ServletContextEvent servletContextEvent) {
     try {
-      scheduler.shutdown (true);
-    } catch (SchedulerException e) {
-      throw new RuntimeException (e);
+      try {
+        scheduler.shutdown (true);
+      } catch (SchedulerException e) {}
     } finally {
       super.contextDestroyed (servletContextEvent);
     }

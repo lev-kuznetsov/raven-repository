@@ -30,9 +30,6 @@ import com.fasterxml.jackson.module.guice.ObjectMapperModule;
 import com.google.inject.persist.PersistService;
 import com.google.inject.persist.jpa.JpaPersistModule;
 
-import edu.dfci.cccb.raven.Cran;
-import edu.dfci.cccb.raven.Package;
-
 @RunWith (JukitoRunner.class)
 public class PackageTest {
 
