@@ -15,7 +15,7 @@
 <!-- See the License for the specific language governing permissions and -->
 <!-- limitations under the License. -->
 
-<Server address="OPENSHIFT_DIY_IP" port="15005" shutdown="SHUTDOWN">
+<Server address="127.12.120.1" port="15005" shutdown="SHUTDOWN">
   <Listener className="org.apache.catalina.core.AprLifecycleListener"
     SSLEngine="on" />
   <Listener className="org.apache.catalina.core.JasperListener" />
@@ -31,15 +31,15 @@
   </GlobalNamingResources>
   <Service name="Catalina">
     <Connector port="8080" protocol="HTTP/1.1"
-      connectionTimeout="20000" address="OPENSHIFT_DIY_IP" redirectPort="15443" />
-    <Connector address="OPENSHIFT_DIY_IP" port="15009"
+      connectionTimeout="20000" address="127.12.120.1" redirectPort="15443" />
+    <Connector address="127.12.120.1" port="15009"
       protocol="AJP/1.3" redirectPort="15443" />
     <Engine name="Catalina" defaultHost="OPENSHIFT_DIY_IP">
       <Realm className="org.apache.catalina.realm.LockOutRealm">
         <Realm className="org.apache.catalina.realm.UserDatabaseRealm"
           resourceName="UserDatabase" />
       </Realm>
-      <Host name="OPENSHIFT_APP_DNS" appBase="webapps" unpackWARs="true"
+      <Host name="raven-turborabbit.rhcloud.com" appBase="webapps" unpackWARs="true"
         autoDeploy="true">
         <Valve className="org.apache.catalina.valves.AccessLogValve"
           directory="logs" prefix="localhost_access_log." suffix=".txt"
