@@ -16,6 +16,7 @@ package edu.dfci.cccb.raven;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static com.google.inject.Guice.createInjector;
+import static com.google.inject.multibindings.Multibinder.newSetBinder;
 import static java.lang.System.getProperties;
 import static java.lang.System.getProperty;
 import static java.lang.System.getenv;
@@ -24,14 +25,20 @@ import static java.util.logging.LogManager.getLogManager;
 import static java.util.logging.Logger.getLogger;
 
 import java.io.IOException;
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.servlet.ServletContextEvent;
 
 import org.apache.onami.scheduler.QuartzModule;
+import org.quartz.Scheduler;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.fasterxml.jackson.module.guice.ObjectMapperModule;
 import com.google.inject.Binder;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import com.google.inject.multibindings.Multibinder;
 import com.google.inject.persist.PersistFilter;
 import com.google.inject.persist.jpa.JpaPersistModule;
 import com.google.inject.servlet.GuiceServletContextListener;
@@ -41,6 +48,7 @@ import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 import edu.dfci.cccb.raven.Cran.CranResolver;
 import edu.dfci.cccb.raven.Svn.BiocDevelResolver;
 import edu.dfci.cccb.raven.Svn.BiocReleaseResolver;
+import edu.dfci.cccb.raven.annotation.OnClose;
 
 /**
  * Configures the application server
@@ -65,10 +73,15 @@ public class Raven extends GuiceServletContextListener implements Module {
       getProperties ().load (getClass ().getResourceAsStream ("/profile.properties"));
     } catch (IOException e) {}
 
+    final Multibinder<Runnable> finalizers = newSetBinder (binder, Runnable.class);
+
     // Configures deps using java.util.logging to log out to slf4j
     getLogManager ().reset ();
     SLF4JBridgeHandler.install ();
     getLogger ("global").setLevel (FINEST);
+
+    // Inject context listener
+    binder.requestInjection (this);
 
     // JSON
     binder.install (new ObjectMapperModule ());
@@ -78,12 +91,20 @@ public class Raven extends GuiceServletContextListener implements Module {
 
     // Quartz
     binder.install (new QuartzModule () {
+      private @Inject Scheduler scheduler;
 
       @Override
       protected void schedule () {
         scheduleJob (CranResolver.class);
         scheduleJob (BiocDevelResolver.class);
         scheduleJob (BiocReleaseResolver.class);
+
+        requestInjection (this);
+        finalizers.addBinding ().toInstance ( () -> {
+          try {
+            scheduler.shutdown ();
+          } catch (Exception e) {}
+        });
       }
     });
 
@@ -104,5 +125,20 @@ public class Raven extends GuiceServletContextListener implements Module {
   @Override
   protected Injector getInjector () {
     return createInjector (this);
+  }
+
+  /**
+   * For cleanup, injected after the injector is created
+   */
+  private @Inject @OnClose Set<Runnable> finalizers;
+
+  /* (non-Javadoc)
+   * @see
+   * com.google.inject.servlet.GuiceServletContextListener#contextDestroyed
+   * (javax.servlet.ServletContextEvent) */
+  @Override
+  public void contextDestroyed (ServletContextEvent servletContextEvent) {
+    finalizers.forEach (f -> f.run ());
+    super.contextDestroyed (servletContextEvent);
   }
 }
