@@ -272,8 +272,19 @@ public abstract class Snapshot implements Comparable<Snapshot> {
                                                                                    .getKey ()))
                                                            .collect (toSet ())
                                                            .toArray (new Snapshot[0])));
-      save.accept (pakage);
+      persist (save, pakage);
       return pakage;
+    }
+
+    /**
+     * Persists the package meta data
+     * 
+     * @param persistence
+     * @param pakage
+     */
+    @Transactional
+    protected void persist (Consumer<Package> persistence, Package pakage) {
+      persistence.accept (pakage);
     }
 
     /**
@@ -284,7 +295,6 @@ public abstract class Snapshot implements Comparable<Snapshot> {
      * @throws VersionNotFoundException
      * @throws PackageNotFoundException
      */
-    @Transactional
     protected synchronized Package resolve (SnapshotCreator c, String descriptor) throws VersionNotFoundException,
                                                                                  PackageNotFoundException {
       Map<String, String> keyValuePairs = new HashMap<> ();
