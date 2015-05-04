@@ -43,7 +43,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.inject.persist.Transactional;
 
 /**
  * Represents an SVN hosted package snapshot
@@ -309,10 +308,9 @@ public class Svn extends Snapshot {
                               buildPageUrl = "http://bioconductor.org/checkResults/devel/bioc-LATEST/")
   public static class BiocDevelResolver extends BiocResolver {
 
-    @Transactional
     @Override
-    public synchronized void execute (JobExecutionContext context) throws JobExecutionException {
-      super.execute (context);
+    public String toString () {
+      return "bioconductor devel";
     }
   }
 
@@ -327,10 +325,9 @@ public class Svn extends Snapshot {
                               buildPageUrl = "http://bioconductor.org/checkResults/release/bioc-LATEST")
   public static class BiocReleaseResolver extends BiocResolver {
 
-    @Transactional
     @Override
-    public synchronized void execute (JobExecutionContext context) throws JobExecutionException {
-      super.execute (context);
+    public String toString () {
+      return "bioconductor release";
     }
   }
 }

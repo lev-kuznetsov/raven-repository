@@ -34,8 +34,6 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import com.google.inject.persist.Transactional;
-
 /**
  * Represents a CRAN package snapshot
  * 
@@ -84,7 +82,6 @@ public class Cran extends Snapshot {
     /* (non-Javadoc)
      * @see org.quartz.Job#execute(org.quartz.JobExecutionContext) */
     @Override
-    @Transactional
     public synchronized void execute (JobExecutionContext context) throws JobExecutionException {
       try {
         descriptors = asList (IOUtils.toString (new URL ("http://cran.us.r-project.org/src/"
@@ -123,6 +120,11 @@ public class Cran extends Snapshot {
         resolved.put (name, p);
         return p;
       });
+    }
+
+    @Override
+    public String toString () {
+      return "CRAN";
     }
   }
 }

@@ -29,7 +29,6 @@ import java.net.URL;
 import javax.inject.Inject;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.transaction.Transactional;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
@@ -116,7 +115,6 @@ public class Github extends Snapshot {
      * @throws URISyntaxException
      */
     @POST
-    @Transactional
     public Response update (GithubPushEvent push) throws MalformedURLException, IOException, URISyntaxException {
       if ("refs/heads/master".equals (push.ref)) {
         String target = "https://raw.githubusercontent.com/" + push.repository.name + "/" + push.sha + "/DESCRIPTION";

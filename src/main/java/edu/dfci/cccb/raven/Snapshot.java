@@ -60,6 +60,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.inject.persist.Transactional;
 
 /**
  * Represents a package snapshot
@@ -283,6 +284,7 @@ public abstract class Snapshot implements Comparable<Snapshot> {
      * @throws VersionNotFoundException
      * @throws PackageNotFoundException
      */
+    @Transactional
     protected synchronized Package resolve (SnapshotCreator c, String descriptor) throws VersionNotFoundException,
                                                                                  PackageNotFoundException {
       Map<String, String> keyValuePairs = new HashMap<> ();
