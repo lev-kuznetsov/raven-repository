@@ -26,7 +26,6 @@ import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.of;
 import static javax.persistence.CascadeType.ALL;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,12 +54,10 @@ import javax.persistence.Transient;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.inject.persist.Transactional;
+
+import edu.dfci.cccb.raven.json.DateSerializer;
 
 /**
  * Represents a package snapshot
@@ -74,21 +71,6 @@ import com.google.inject.persist.Transactional;
 @Inheritance (strategy = InheritanceType.JOINED)
 @DiscriminatorColumn
 public abstract class Snapshot implements Comparable<Snapshot> {
-
-  /**
-   * Date serializer
-   * 
-   * @author levk
-   *
-   */
-  public static class DateSerializer extends JsonSerializer<LocalDate> {
-
-    @Override
-    public void serialize (LocalDate value, JsonGenerator gen, SerializerProvider serializers) throws IOException,
-                                                                                              JsonProcessingException {
-      gen.writeString (value.toString ());
-    }
-  }
 
   /**
    * Primary key
